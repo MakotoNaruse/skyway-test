@@ -1,5 +1,10 @@
 class RoomsController < ApplicationController
+
+  def join
+
+  end
+
   def show
-    @room = params[:id]
+    @roomId = params[:id]
   end
 end

@@ -66,9 +66,11 @@ export default {
                 audio: this.selectedAudio ? { deviceId: { exact: this.selectedAudio } } : false,
                 video: this.selectedVideo ? { deviceId: { exact: this.selectedVideo } } : false
             }
+            console.log(constraints);
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
             document.getElementById('my-video').srcObject = stream;
             this.localStream = stream;
+            console.log(stream);
         },
         leaveRoom: function(){
             if (!this.peer.open) {
@@ -88,9 +90,22 @@ export default {
                 mode: "sfu",
                 stream: this.localStream,
             });
+            this.room.replaceStream(this.localStream);
+            //ログを出力
+            this.room.once('log', logs => {
+              for (const logStr of logs) {
+                const { messageType, message, timestamp } = JSON.parse(logStr);
+                console.log(messageType);
+                console.log(message);
+                console.log(timestamp);
+              }
+            });
             //部屋に接続できた時（open）に一度だけdiv(messages)に=== You joined ===を表示
             this.room.once('open', () => {
                 this.messages.push('=== You joined ===');
+                this.room.send("成瀬が参加しました");
+                this.room.replaceStream(this.localStream);
+                console.log("replacestream");
             });
             //部屋に誰かが接続してきた時（peerJoin）、いつでもdiv(messages)に下記のテキストを表示
             this.room.on('peerJoin', peerId => {
@@ -99,6 +114,7 @@ export default {
             //重要：streamの内容に変更があった時（stream）videoタグを作って流す
             this.room.on('stream', async stream => {
                 await this.remoteStreams.push(stream);
+                this.room.replaceStream(this.localStream);
             });
 
             //重要：誰かがテキストメッセージを送った時、messagesを更新
@@ -113,7 +129,7 @@ export default {
                 this.messages.push(`=== ${peerId} left ===`);
             });
 
-            // 自分が退出した場合の処理
+            // 自分が退出した場合の処理 要改修
             this.room.once('close', () => {
                 //メッセージ送信ボタンを押せなくする
                 this.messages.length = 0;

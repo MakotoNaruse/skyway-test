@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
-  get 'rooms/show'
-  root 'rooms#show'
+  get 'rooms/join'
+  get 'rooms/show' => 'rooms#show'
+  root 'rooms#join'
 end

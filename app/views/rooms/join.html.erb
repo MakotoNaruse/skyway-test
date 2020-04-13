@@ -1,0 +1,5 @@
+<%= form_with url: 'rooms/show', method: :get, local: true do |form| %>
+  ルームID:
+  <%= form.text_field :id %> <br>
+  <%= form.submit 'ルームに参加する！'%>
+<% end %>
